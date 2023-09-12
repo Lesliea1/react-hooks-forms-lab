@@ -3,23 +3,53 @@ import ItemForm from "./ItemForm";
 import Filter from "./Filter";
 import Item from "./Item";
 
-function ShoppingList({ items }) {
+function ShoppingList() {
+  const [items, setItems] = useState([
+    { id: 1, name: "Yogurt", category: "Dairy" },
+    { id: 2, name: "Pomegranate", category: "Produce" },
+    { id: 3, name: "Lettuce", category: "Produce" },
+    { id: 4, name: "String Cheese", category: "Dairy" },
+    { id: 5, name: "Swiss Cheese", category: "Dairy" },
+    { id: 6, name: "Cookies", category: "Dessert" },
+  ]);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchText, setSearchText] = useState("");
 
   function handleCategoryChange(event) {
     setSelectedCategory(event.target.value);
   }
 
-  const itemsToDisplay = items.filter((item) => {
-    if (selectedCategory === "All") return true;
+  function handleSearchChange(newSearchText) {
+    setSearchText(newSearchText);
+  }
 
-    return item.category === selectedCategory;
+  function handleItemFormSubmit(newItem) {
+    setItems((prevItems) => [...prevItems, newItem]);
+  }
+
+  const itemsToDisplay = items.filter((item) => {
+    if (selectedCategory !== "All" && item.category !== selectedCategory) {
+      return false;
+    }
+
+    if (searchText.trim() === "") {
+      return true;
+    }
+
+    const itemNameLower = item.name.toLowerCase();
+    const searchTermLower = searchText.toLowerCase();
+
+    return itemNameLower.includes(searchTermLower);
   });
 
   return (
     <div className="ShoppingList">
-      <ItemForm />
-      <Filter onCategoryChange={handleCategoryChange} />
+      <ItemForm onItemFormSubmit={handleItemFormSubmit} />
+      <Filter
+        onCategoryChange={handleCategoryChange}
+        onSearchChange={handleSearchChange}
+        search={searchText}
+      />
       <ul className="Items">
         {itemsToDisplay.map((item) => (
           <Item key={item.id} name={item.name} category={item.category} />
@@ -30,3 +60,4 @@ function ShoppingList({ items }) {
 }
 
 export default ShoppingList;
+  
